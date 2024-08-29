@@ -202,23 +202,29 @@ module.exports = function (User) {
 		await db.delete(`uid:${uid}:ip`);
 	}
 
+	async function getCounts(uids, name){
+		uids = uids.map(uid => name + uid)
+		const counts = await db.sortedSetsCard(uids);
+		return counts
+	}
+	
+	async function updateCount(uids, name, fieldName) {
+		await batch.processArray(uids, async (uids) => {
+			const counts = await getCounts(uids,name);
+			const bulkSet = counts.map(
+				(count, index) => ([`user:${uids[index]}`, { [fieldName]: count || 0 }])
+			);
+			await db.setObjectBulk(bulkSet);
+		}, {
+			batch: 500,
+		});
+	}
+
 	async function deleteUserFromFollowers(uid) {
 		const [followers, following] = await Promise.all([
 			db.getSortedSetRange(`followers:${uid}`, 0, -1),
 			db.getSortedSetRange(`following:${uid}`, 0, -1),
 		]);
-
-		async function updateCount(uids, name, fieldName) {
-			await batch.processArray(uids, async (uids) => {
-				const counts = await db.sortedSetsCard(uids.map(uid => name + uid));
-				const bulkSet = counts.map(
-					(count, index) => ([`user:${uids[index]}`, { [fieldName]: count || 0 }])
-				);
-				await db.setObjectBulk(bulkSet);
-			}, {
-				batch: 500,
-			});
-		}
 
 		const followingSets = followers.map(uid => `following:${uid}`);
 		const followerSets = following.map(uid => `followers:${uid}`);
