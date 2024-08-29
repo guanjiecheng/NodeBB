@@ -8,6 +8,7 @@ const user = require('../../src/user');
 const utils = require('../../src/utils');
 
 
+
 describe('delete.js', () => {
 	describe('.deleteUserFromFollowers()', () => {
 		let followerUid;
