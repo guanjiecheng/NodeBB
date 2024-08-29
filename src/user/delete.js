@@ -202,15 +202,10 @@ module.exports = function (User) {
 		await db.delete(`uid:${uid}:ip`);
 	}
 
-	async function getCounts(uids, name){
-		uids = uids.map(uid => name + uid)
-		const counts = await db.sortedSetsCard(uids);
-		return counts
-	}
-	
 	async function updateCount(uids, name, fieldName) {
 		await batch.processArray(uids, async (uids) => {
-			const counts = await getCounts(uids,name);
+			const reformatUids = uids.map(uid => name + uid)
+			const counts = await db.sortedSetsCard(reformatUids);
 			const bulkSet = counts.map(
 				(count, index) => ([`user:${uids[index]}`, { [fieldName]: count || 0 }])
 			);
