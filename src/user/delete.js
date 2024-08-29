@@ -204,7 +204,7 @@ module.exports = function (User) {
 
 	async function updateCount(uids, name, fieldName) {
 		await batch.processArray(uids, async (uids) => {
-			const reformatUids = uids.map(uid => name + uid)
+			const reformatUids = uids.map(uid => name + uid);
 			const counts = await db.sortedSetsCard(reformatUids);
 			const bulkSet = counts.map(
 				(count, index) => ([`user:${uids[index]}`, { [fieldName]: count || 0 }])

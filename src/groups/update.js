@@ -217,7 +217,6 @@ module.exports = function (Groups) {
 		});
 		Groups.cache.reset();
 	};
-	
 	async function updateMemberGroupTitles(oldName, newName) {
 		await batch.processSortedSet(`group:${oldName}:members`, async (uids) => {
 			let usersData = await user.getUsersData(uids);

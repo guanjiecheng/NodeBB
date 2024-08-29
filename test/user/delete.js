@@ -17,9 +17,9 @@ const utils = require('../../src/utils');
 const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
 
 describe('delete.js', () => {
-    describe(".deleteUserFromFollowers()", ()=>{
-        let followerUid;
-        let followingUid;
+	describe('.deleteUserFromFollowers()', () => {
+		let followerUid;
+		let followingUid;
 
 		beforeEach(async () => {
 			followerUid = await user.create({
@@ -28,21 +28,19 @@ describe('delete.js', () => {
 				gdpr_consent: 1,
 			});
 
-            followingUid = await user.create({
+			followingUid = await user.create({
 				username: utils.generateUUID(),
 				password: utils.generateUUID(),
 				gdpr_consent: 1,
 			});
 
-            await user.follow(followingUid, followerUid);
+			await user.follow(followingUid, followerUid);
 		});
 
-        it('should remove a user from following when user deletes account ', async () => {
-            await user.deleteAccount(followerUid);
-            
-            const followers = await db.getSortedSetMembers(`uid:${followingUid}:followers`);
-            console.log(followers)
-            assert.strictEqual(followers.length, 0);
+		it('should remove a user from following when user deletes account ', async () => {
+			await user.deleteAccount(followerUid);
+			const followers = await db.getSortedSetMembers(`uid:${followingUid}:followers`);
+			assert.strictEqual(followers.length, 0);
 		});
-    });
+	});
 });
